@@ -10,6 +10,7 @@ import { useEffect, useContext, useState } from "react";
 
 const Editprofile = () => {
   const { auth } = useContext(AuthContext);
+  console.log("🚀 ~ Editprofile ~ auth:", auth);
   // const [name, setName] = useState(auth?.name || "");
   // const {phone,setPhone} = useState("");
   // const {dateOfBirth,setDateOfBirth} = useState("");
@@ -18,7 +19,7 @@ const Editprofile = () => {
   const [invalidFields, setInvalidFields] = useState([]);
 
   const [payload, setpayload] = useState({
-    name: auth?.name || "",
+    name: "",
     phone: "",
     dateOfBirth: "",
     address: auth?.address || "",
@@ -27,22 +28,35 @@ const Editprofile = () => {
 
   const [user, setUser] = useState("");
   useEffect(() => {
+    console.log("🚀 ~ getuser ~ auth.accessToken:", auth.accessToken);
     const getuser = async () => {
       try {
         const user = await userService.getcurrentuser(auth.accessToken);
-        setUser(user.data);
-        console.log(user);
+        console.log("🚀 ~ getuser ~ user:", user);
+        setUser({ ...user.data });
+        setpayload({ ...user.data });
+        // console.log(payload);
       } catch (error) {
         console.log("Error ", error);
       }
     };
     getuser();
-  }, []);
+  }, [auth]);
 
   const handleSubmit = async () => {
     console.log(payload);
     const result = validate(payload, setInvalidFields);
-    console.log(result);
+    if (result === 0) {
+      const result = await userService.EditUser(
+        auth.accessToken,
+        payload.name,
+        payload.address,
+        payload.dateOfBirth,
+        payload.phone,
+        payload.avatar,
+      );
+      console.log("🚀 ~ handleSubmit ~ result:", result);
+    }
   };
 
   return (
@@ -63,7 +77,7 @@ const Editprofile = () => {
             setInvalidFields={setInvalidFields}
             invaLidFields={invalidFields}
             direction="flew-row"
-            value={payload.name}
+            value={user.name}
             setValue={setpayload}
             label="Tên Hiển Thị"
           />
@@ -96,7 +110,7 @@ const Editprofile = () => {
             setInvalidFields={setInvalidFields}
             invaLidFields={invalidFields}
             direction="flew-row"
-            value={payload.address}
+            value={payload.address || user.address}
             label="Địa chỉ"
           />
 

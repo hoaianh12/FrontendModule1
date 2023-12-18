@@ -24,7 +24,7 @@ export const EditUser = async (
   avatar,
 ) => {
   try {
-    const response = await request.post(
+    const response = await request.put(
       EDIDIT_USERS,
       {
         name: name,
